@@ -1,5 +1,5 @@
-Django Filter
-=============
+Django Filter Monogoengine
+===========================
 
 Django-filter-mongoengine is a reusable Django application for allowing users to filter
 `mongoengine querysets`_ dynamically.
@@ -29,14 +29,11 @@ Or clone the repo and add to your PYTHONPATH::
 Usage
 -----
 
-Django-filter can be used for generating interfaces similar to the Django
-admin's ``list_filter`` interface.  It has an API very similar to Django's
-``ModelForms``.  For example, if you had a Product model you could have a
-filterset for it with the code::
+::
 
-    import django_filters
+    import django_filters_mongoengine
 
-    class ProductFilter(django_filters.FilterSet):
+    class ProductFilter(django_filters_mongoengine.FilterSet):
         class Meta:
             model = Product
             fields = ['name', 'price', 'manufacturer']
@@ -48,12 +45,7 @@ And then in your view you could do::
         filter = ProductFilter(request.GET, queryset=Product.objects.all())
         return render_to_response('my_app/template.html', {'filter': filter})
 
-Support
--------
-
-If you have questions about usage or development you can join the
-`mailing list`_.
 
 .. _`mongoengine querysets`: http://mongoengine-odm.readthedocs.org/apireference.html?highlight=queryset#module-mongoengine.queryset
 .. _`read the docs`: https://django-filter.readthedocs.org/en/latest/
-.. _`mailing list`: http://groups.google.com/group/django-filter
+
