@@ -12,7 +12,7 @@ setup(
     long_description=readme,
     author='Amine Chouki',
     author_email='surfeurX@gmail.com',
-    url='http://github.com/surfeurX/django-filter-mongoengine/tree/master',
+    url='https://github.com/surfeurX/django-filter-mongoengine/tree/master',
     packages=find_packages(exclude=['tests']),
     package_data = {
         'django_filters_mongoengine': [

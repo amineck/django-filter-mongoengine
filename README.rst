@@ -46,6 +46,6 @@ And then in your view you could do::
         return render_to_response('my_app/template.html', {'filter': filter})
 
 
-.. _`mongoengine querysets`: http://mongoengine-odm.readthedocs.org/apireference.html?highlight=queryset#module-mongoengine.queryset
+.. _`mongoengine querysets`: http://mongoengine-odm.readthedocs.org/apireference.html#module-mongoengine.queryset
 .. _`read the docs`: https://django-filter.readthedocs.org/en/latest/
 

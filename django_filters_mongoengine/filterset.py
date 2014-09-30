@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from copy import deepcopy
 import mongoengine
+from mongoengine.fields import EmbeddedDocumentField, ListField
 from django import forms
 from django.core.validators import EMPTY_VALUES
 from django.db import models
@@ -26,8 +27,8 @@ except ImportError:  # pragma: nocover
 
 
 from .filters import (Filter, StringFilter, BooleanFilter,
-    ChoiceFilter, DateFilter, DateTimeFilter, TimeFilter, ModelChoiceFilter,
-    ModelMultipleChoiceFilter, NumberFilter)
+                      ChoiceFilter, DateFilter, DateTimeFilter, TimeFilter, ModelChoiceFilter,
+                      ModelMultipleChoiceFilter, NumberFilter)
 
 
 ORDER_BY_FIELD = 'o'
@@ -56,7 +57,20 @@ def get_declared_filters(bases, attrs, with_base_filters=True):
 
 
 def get_model_field(model, f):
-    return getattr(model, f)
+    parts = f.split(LOOKUP_SEP)
+    if len(parts) == 1:
+        try:
+            return model._lookup_field(f)[0]
+        except LookUpError:
+            return None
+    for part in parts[:-1]:
+        try:
+            member = model._lookup_field(part)[0].lookup_member(parts[-1])
+        except LookUpError:
+            return None
+        if isinstance(member, (EmbeddedDocumentField, ListField)):
+            model = member
+    return member
 
 
 def filters_for_model(model, fields=None, exclude=None, filter_for_field=None,
@@ -65,10 +79,8 @@ def filters_for_model(model, fields=None, exclude=None, filter_for_field=None,
     opts = model._meta
     if fields is None:
         fields = [f.name for f in sorted(opts.fields + opts.many_to_many)
-            if not isinstance(f, models.AutoField)]
+                  if not isinstance(f, models.AutoField)]
     for f in fields:
-        if exclude is not None and f in exclude:
-            continue
         field = get_model_field(model, f)
         if field is None:
             field_dict[f] = None
@@ -116,7 +128,7 @@ class FilterSetMetaclass(type):
 
         if None in filters.values():
             raise TypeError("Meta.fields contains a field that isn't defined "
-                "on this FilterSet")
+                            "on this FilterSet")
 
         new_class.declared_filters = declared_filters
         new_class.base_filters = filters
@@ -259,7 +271,8 @@ class BaseFilterSet(object):
                     # e.g. (('field', 'Display name'), ...)
                     choices = [(f[0], f[1]) for f in self._meta.order_by]
                 else:
-                    choices = [(f, _('%s (descending)' % capfirst(f[1:])) if f[0] == '-' else capfirst(f))
+                    choices = [(f, _('%s (descending)' % capfirst(f[1:]))
+                               if f[0] == '-' else capfirst(f))
                                for f in self._meta.order_by]
             else:
                 # add asc and desc field names
@@ -268,7 +281,8 @@ class BaseFilterSet(object):
                 for f, fltr in self.filters.items():
                     choices.extend([
                         (fltr.name or f, fltr.label or capfirst(f)),
-                        ("-%s" % (fltr.name or f), _('%s (descending)' % (fltr.label or capfirst(f))))
+                        ("-%s" % (fltr.name or f),
+                         _('%s (descending)' % (fltr.label or capfirst(f))))
                     ])
             return forms.ChoiceField(label="Ordering", required=False,
                                      choices=choices)
