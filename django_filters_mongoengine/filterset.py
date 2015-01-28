@@ -85,9 +85,20 @@ def filters_for_model(model, fields=None, exclude=None, filter_for_field=None,
         if field is None:
             field_dict[f] = None
             continue
-        filter_ = filter_for_field(field, f)
-        if filter_:
-            field_dict[f] = filter_
+        if isinstance(fields, dict):
+            # Create a filter for each lookup type.
+            for lookup_type in fields[f]:
+                filter_ = filter_for_field(field, f, lookup_type)
+                if filter_:
+                    filter_name = f
+                    # Don't add "exact" to filter names
+                    if lookup_type != 'exact':
+                        filter_name = f + LOOKUP_SEP + lookup_type
+                    field_dict[filter_name] = filter_
+        else:
+            filter_ = filter_for_field(field, f)
+            if filter_:
+                field_dict[f] = filter_
     return field_dict
 
 
@@ -297,13 +308,14 @@ class BaseFilterSet(object):
         return [order_choice]
 
     @classmethod
-    def filter_for_field(cls, f, name):
+    def filter_for_field(cls, f, name, lookup_type='exact'):
         filter_for_field = dict(FILTER_FOR_DBFIELD_DEFAULTS)
         filter_for_field.update(cls.filter_overrides)
 
         default = {
             'name': name,
-            'label': capfirst(f.verbose_name)
+            'label': capfirst(f.verbose_name),
+            'lookup_type': lookup_type
         }
 
         if f.choices:
