@@ -197,6 +197,11 @@ class BaseFilterSet(object):
         for filter_ in self.filters.values():
             filter_.model = self._meta.model
 
+        # Apply the parent to the filters, this will allow the filters to
+        # access the filterset
+        for filter_key, filter_ in six.iteritems(self.filters):
+            filter_.parent = self
+
     def __iter__(self):
         for obj in self.qs:
             yield obj
