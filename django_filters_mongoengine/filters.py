@@ -106,7 +106,7 @@ class MultipleChoiceFilter(Filter):
 
     def filter(self, qs, value):
         value = value or ()
-        if len(value) == len(self.field.choices):
+        if not value or len(value) == len(self.field.choices):
             return qs
         return qs.filter(**{'%s__in' % self.name: value})
 
