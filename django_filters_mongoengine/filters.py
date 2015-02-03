@@ -108,10 +108,7 @@ class MultipleChoiceFilter(Filter):
         value = value or ()
         if len(value) == len(self.field.choices):
             return qs
-        q = Q()
-        for v in value:
-            q |= Q(**{self.name: v})
-        return qs.filter(q).distinct()
+        return qs.filter(**{'%s__in' % self.name: value})
 
 
 class DateFilter(Filter):
