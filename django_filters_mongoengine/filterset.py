@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from copy import deepcopy
 import mongoengine
+from mongoengine.errors import LookUpError
 from mongoengine.fields import EmbeddedDocumentField, ListField
 from django import forms
 from django.core.validators import EMPTY_VALUES
