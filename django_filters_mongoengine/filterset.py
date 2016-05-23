@@ -7,8 +7,6 @@ from mongoengine.fields import EmbeddedDocumentField, ListField
 from django import forms
 from django.core.validators import EMPTY_VALUES
 from django.db import models
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.related import RelatedObject
 from django.utils import six
 from django.utils.text import capfirst
 from django.utils.translation import ugettext as _
